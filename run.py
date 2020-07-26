@@ -5,7 +5,8 @@ from time import time, sleep
 def detect_gpu_process_status():
     out = os.popen("nvidia-smi | awk '/ C / {print($2\":\"$3\":\"$6)}'").read()
     data = [i.split(":") for i in out.split("\n") if i]
-    data = ["# GPU process status", "# TYPE gpu_process_status untyped"] + ["gpu_process_status{"+f"gpu=\"{d[0]}\",pname=\"{psutil.Process(int(d[1])).cmdline()[0]}\""+"} "+f"{d[2][:-3]}" for d in data] + [""]
+    data = ["# GPU process status", "# TYPE gpu_process_status untyped"] + ["gpu_process_status{"+f"gpu=\"{d[0]}\",pname=\"{' '.join(psutil.Process(int(d[1])).cmdline())}\""+"} "+f"{d[2][:-3]}" for d in data] + [""]
+    return data
 
 def write_log(data):
     with open("/run/prometheus/gpu_process_status.prom", "w") as f:
