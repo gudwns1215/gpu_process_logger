@@ -19,3 +19,6 @@ def process_logging(sleep_duration=5):
             write_log(data)
         before_data = data
         sleep(sleep_duration)
+
+if __name__=="__main__":
+    process_logging()
