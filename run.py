@@ -5,7 +5,16 @@ from time import time, sleep
 def detect_gpu_process_status():
     out = os.popen("nvidia-smi | awk '/ C / {print($2\":\"$3\":\"$6)}'").read()
     data = [i.split(":") for i in out.split("\n") if i]
-    data = ["# GPU process status", "# TYPE gpu_process_status untyped"] + ["gpu_process_status{"+f"gpu=\"{d[0]}\",pname=\"{' '.join(psutil.Process(int(d[1])).cmdline()).strip()}\""+"} "+f"{d[2][:-3]}" for d in data] + [""]
+
+    new_data = []
+    # ["gpu_process_status{"+f"gpu=\"{d[0]}\",pname=\"{' '.join(psutil.Process(int(d[1])).cmdline()).strip()}\""+"} "+f"{d[2][:-3]}" for d in data]
+    for d in data:
+        ps = psutil.Process(int(d[1]))
+        new_data.append(
+            "gpu_process_status{"+f"gpu=\"{d[0]}\",pname=\"{' '.join(ps.cmdline()).strip()}\",username=\"{ps.username()}\""""+"} "+f"{d[2][:-3]}"
+        )
+
+    data = ["# GPU process status", "# TYPE gpu_process_status untyped"] + new_data + [""]
     return data
 
 def write_log(data):
@@ -17,6 +26,8 @@ def process_logging(sleep_duration=5):
     before_data = None
     while True:
         data = detect_gpu_process_status()
+        print(data)
+        exit()
         if before_data != data:
             write_log(data)
         before_data = data
