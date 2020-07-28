@@ -7,11 +7,10 @@ def detect_gpu_process_status():
     data = [i.split(":") for i in out.split("\n") if i]
 
     new_data = []
-    # ["gpu_process_status{"+f"gpu=\"{d[0]}\",pname=\"{' '.join(psutil.Process(int(d[1])).cmdline()).strip()}\""+"} "+f"{d[2][:-3]}" for d in data]
     for d in data:
         ps = psutil.Process(int(d[1]))
         new_data.append(
-            "gpu_process_status{"+f"gpu=\"{d[0]}\",pname=\"{' '.join(ps.cmdline()).strip()}\",username=\"{ps.username()}\""""+"} "+f"{d[2][:-3]}"
+            "gpu_process_status{"+f"gpu=\"{d[0]}\",pid=\"{int(d[1])}\",pname=\"{' '.join(ps.cmdline()).strip()}\",username=\"{ps.username()}\""""+"} "+f"{d[2][:-3]}"
         )
 
     data = ["# GPU process status", "# TYPE gpu_process_status untyped"] + new_data + [""]
