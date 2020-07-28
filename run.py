@@ -26,7 +26,6 @@ def process_logging(sleep_duration=5):
     while True:
         data = detect_gpu_process_status()
         print(data)
-        exit()
         if before_data != data:
             write_log(data)
         before_data = data
