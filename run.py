@@ -1,5 +1,6 @@
 import os
 import psutil
+import pwd
 from time import time, sleep
 
 def detect_gpu_process_status():
@@ -9,8 +10,12 @@ def detect_gpu_process_status():
     new_data = []
     for d in data:
         ps = psutil.Process(int(d[1]))
+        username = ps.username()
+        if username.isnumeric():
+            username = pwd.getpwuid(int()).pw_name
+            
         new_data.append(
-            "gpu_process_status{"+f"gpu=\"{d[0]}\",pid=\"{int(d[1])}\",pname=\"{' '.join(ps.cmdline()).strip()}\",username=\"{ps.username()}\""""+"} "+f"{d[2][:-3]}"
+            "gpu_process_status{"+f"gpu=\"{d[0]}\",pid=\"{int(d[1])}\",pname=\"{' '.join(ps.cmdline()).strip()}\",username=\"{username}\""""+"} "+f"{d[2][:-3]}"
         )
 
     data = ["# GPU process status", "# TYPE gpu_process_status untyped"] + new_data + [""]
@@ -27,6 +32,7 @@ def process_logging(sleep_duration=5):
         data = detect_gpu_process_status()
         if before_data != data:
             print(data)
+            exit()
             write_log(data)
         before_data = data
         sleep(sleep_duration)
