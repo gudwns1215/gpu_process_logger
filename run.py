@@ -9,7 +9,11 @@ def detect_gpu_process_status():
 
     new_data = []
     for d in data:
-        ps = psutil.Process(int(d[1]))
+        try:
+            ps = psutil.Process(int(d[1]))
+        except psutil.NoSuchProcess as e:
+            print(f"Process {d[1]} doesn't exist.")
+            continue
         username = ps.username()
         if username.isnumeric():
             username = pwd.getpwuid(int()).pw_name
