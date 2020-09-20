@@ -4,10 +4,11 @@ import pwd
 from time import time, sleep
 
 def detect_gpu_process_status():
-    data = os.popen("nvidia-smi | awk '/ C /'").read()
+    data = os.popen("nvidia-smi | awk '/ C /'").read().split("\n")
     data = [i[1:-1].replace("  ", " ") for i in data]
-    while "  " in data[0]:
+    while any(["  " in d for d in data]):
         data = [i.replace("  ", " ") for i in data]
+    data = [i.split(" ") for i in data]
     data = [[i[1], i[2], i[-2]] for i in data if len(i)>3]
 
     new_data = []
